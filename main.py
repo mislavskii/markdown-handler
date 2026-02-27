@@ -36,7 +36,7 @@ def main() -> None:
         mdw = MDWrangler(path)
         
         # Get the link text to look for
-        link_text = input("Enter the link text (e.g., '👉 '): ").strip()
+        link_text = input("Enter the link text (e.g., '👉 '): ")#.strip()
         
         # Use default link text if none provided
         if not link_text:
