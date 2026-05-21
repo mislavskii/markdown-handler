@@ -36,6 +36,14 @@ class MDWrangler:
         # Replace all matches with markdown formatted links
         self.text = re.sub(pattern, replace_link, self.text)
 
+    def space_out_references(self):
+        """
+        Space out references in the text.
+        Modifies self.text in-place.
+        """
+        pass
+
+
 # Example usage
 if __name__ == "__main__":
     # Test the function
