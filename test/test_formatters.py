@@ -45,3 +45,83 @@ def test_make_markdown_links_preserve_formatted():
     mdw4.make_markdown_links()
     result4 = mdw4.text
     assert result4 == expected4, f"Expected '{expected4}', but got '{result4}'"
+
+def test_space_out_references_single_pair():
+    # Test case: Two adjacent references
+    text = "Check this [^1_5][^1_3] and more"
+    expected = "Check this [^1_5] [^1_3] and more"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_references()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_references_three_adjacent():
+    # Three adjacent references
+    text = "[^a][^b][^c]"
+    expected = "[^a] [^b] [^c]"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_references()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_references_already_spaced():
+    # Already spaced references should stay unchanged
+    text = "[^foo] [^bar]"
+    expected = "[^foo] [^bar]"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_references()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_references_mixed_spacing():
+    # Mixed spacing
+    text = "[^x][^y] [^z]"
+    expected = "[^x] [^y] [^z]"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_references()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_references_no_references():
+    # No references
+    text = "Hello world"
+    expected = "Hello world"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_references()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_references_with_underscores():
+    # References with underscores
+    text = "[^1_5][^2_3]"
+    expected = "[^1_5] [^2_3]"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_references()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_references_with_hyphens():
+    # References with hyphens
+    text = "[^foo-bar][^baz-qux]"
+    expected = "[^foo-bar] [^baz-qux]"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_references()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_references_adjacent_to_text():
+    # References adjacent to other text
+    text = "text[^1][^2]text"
+    expected = "text[^1] [^2]text"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_references()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"

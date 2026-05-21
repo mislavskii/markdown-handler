@@ -41,7 +41,15 @@ class MDWrangler:
         Space out references in the text.
         Modifies self.text in-place.
         """
-        pass
+        import re
+        # Pattern for footnote references: [^...]
+        # Replace adjacent references without spaces with a space between them
+        pattern = r'(\[\^[^\]]*\])(\[\^[^\]]*\])'
+        while True:
+            new_text = re.sub(pattern, r'\1 \2', self.text)
+            if new_text == self.text:
+                break
+            self.text = new_text
 
 
 # Example usage
