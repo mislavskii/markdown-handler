@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """
-Markdown Link Formatter
+Markdown Link Formatter and Reference Spacer
 
-This script converts link-containing text fragments into properly formatted
-Markdown links using the MDWrangler class.
+This script provides two functionalities:
+1. Convert link-containing text fragments into properly formatted Markdown links
+   using the MDWrangler class.
+2. Space out adjacent footnote references (e.g., [^1_5][^1_3] -> [^1_5] [^1_3]).
 """
 
 import os
@@ -35,17 +37,32 @@ def main() -> None:
         # Create MDWrangler instance
         mdw = MDWrangler(path)
         
-        # Get the link text to look for
-        link_text = input("Enter the link text (e.g., '👉 '): ")#.strip()
+        # Ask user which operation to perform
+        print("\nSelect operation:")
+        print("1. Format links (convert 👉 https://... to markdown links)")
+        print("2. Space out footnote references (add spaces between adjacent [^...] references)")
+        print("3. Both (first format links, then space out references)")
+        choice = input("Enter choice (1/2/3): ").strip()
         
-        # Use default link text if none provided
-        if not link_text:
-            link_text = "👉 "
-            print(f"Using default link text: '{link_text}'")
+        if choice not in ("1", "2", "3"):
+            print("Invalid choice. Exiting.")
+            return
+        
+        # Get link text if needed
+        link_text = "👉 "  # default
+        if choice in ("1", "3"):
+            user_input = input("Enter the link text (e.g., '👉 '): ").strip()
+            if user_input:
+                link_text = user_input
+            else:
+                print(f"Using default link text: '{link_text}'")
         
         # Process the file
         print("Processing file...")
-        mdw.make_markdown_links(link_text)
+        if choice in ("1", "3"):
+            mdw.make_markdown_links(link_text)
+        if choice in ("2", "3"):
+            mdw.space_out_references()
         mdw.save()
         
         print(f"File '{path}' has been successfully processed and saved.")

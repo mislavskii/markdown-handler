@@ -38,7 +38,12 @@ class MDWrangler:
 
     def space_out_references(self):
         """
-        Space out references in the text.
+        Space out footnote references in the text.
+        
+        Finds adjacent footnote references (e.g., [^1_5][^1_3]) and inserts a space
+        between them, resulting in [^1_5] [^1_3]. Already spaced references are left
+        unchanged. Works for any number of adjacent references.
+        
         Modifies self.text in-place.
         """
         import re
