@@ -277,3 +277,29 @@ def test_space_out_timecodes_khmer_transcript():
     mdw.space_out_timecodes()
     result = mdw.text
     assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_save_writes_processed_file(tmp_path):
+    # save() writes to a new "_processed" file and leaves the source untouched
+    source = tmp_path / "transcript.md"
+    source.write_text("0:00\ncontent", encoding="utf-8")
+    mdw = formatters.MDWrangler(str(source))
+    mdw.space_out_timecodes()
+    output_path = mdw.save()
+    expected_path = str(tmp_path / "transcript_processed.md")
+    assert output_path == expected_path, f"Expected '{expected_path}', but got '{output_path}'"
+    processed = tmp_path / "transcript_processed.md"
+    assert processed.exists(), "Processed file was not created"
+    assert processed.read_text(encoding="utf-8") == "0:00\n\ncontent"
+    # Original file must remain unchanged
+    assert source.read_text(encoding="utf-8") == "0:00\ncontent"
+
+def test_save_writes_processed_file_no_extension(tmp_path):
+    # Files without an extension still get the "_processed" suffix
+    source = tmp_path / "notes"
+    source.write_text("plain", encoding="utf-8")
+    mdw = formatters.MDWrangler(str(source))
+    mdw.save()
+    processed = tmp_path / "notes_processed"
+    assert processed.exists(), "Processed file was not created"
+    assert processed.read_text(encoding="utf-8") == "plain"
+    assert source.read_text(encoding="utf-8") == "plain"

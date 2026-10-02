@@ -1,3 +1,4 @@
+import os
 import re
 
 
@@ -13,8 +14,20 @@ class MDWrangler:
         self.text = text
 
     def save(self):
-        with open(self.path, 'w') as f:
+        """
+        Write the processed text to a new file placed next to the source file,
+        appending "_processed" to the source file name while keeping the
+        extension (e.g., "notes.md" -> "notes_processed.md"). The source file
+        is left unchanged.
+
+        Returns:
+            str: The path of the file that was written.
+        """
+        base, ext = os.path.splitext(self.path)
+        output_path = f"{base}_processed{ext}"
+        with open(output_path, 'w') as f:
             f.write(self.text)
+        return output_path
 
     def make_markdown_links(self, link_text="👉 "):
         """
