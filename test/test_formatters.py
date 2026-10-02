@@ -125,3 +125,155 @@ def test_space_out_references_adjacent_to_text():
     mdw.space_out_references()
     result = mdw.text
     assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_timecodes_single_entry():
+    # Single timestamped entry: timecode and content become separate paragraphs
+    text = "0:00\nសូមជម្រាបសួរប្រិយមិត្ត"
+    expected = "0:00\n\nសូមជម្រាបសួរប្រិយមិត្ត"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_timecodes()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_timecodes_multiple_entries():
+    # Multiple entries should each become their own paragraph
+    text = "0:00\nfirst content\n0:29\nsecond content\n0:59\nthird content"
+    expected = "0:00\n\nfirst content\n\n0:29\n\nsecond content\n\n0:59\n\nthird content"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_timecodes()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_timecodes_already_spaced():
+    # Already spaced timecodes should stay unchanged (idempotent)
+    text = "0:00\n\nfirst content\n\n0:29\n\nsecond content"
+    expected = "0:00\n\nfirst content\n\n0:29\n\nsecond content"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_timecodes()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_timecodes_no_timestamps():
+    # Text without timestamps should stay unchanged
+    text = "Hello world\nplain text"
+    expected = "Hello world\nplain text"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_timecodes()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_timecodes_with_hours():
+    # Timestamps with an hours component (hh:mm:ss)
+    text = "12:34:56\ncontent"
+    expected = "12:34:56\n\ncontent"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_timecodes()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_timecodes_at_file_start():
+    # No leading blank line should be introduced
+    text = "0:00\ncontent"
+    expected = "0:00\n\ncontent"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_timecodes()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_timecodes_at_file_end():
+    # No trailing blank line should be left behind
+    text = "content\n0:59"
+    expected = "content\n\n0:59"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_timecodes()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_timecodes_mixed_spacing():
+    # Some entries already spaced, some not
+    text = "0:00\n\nfirst\n0:29\nsecond"
+    expected = "0:00\n\nfirst\n\n0:29\n\nsecond"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_timecodes()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_timecodes_after_heading():
+    # Timecode after a markdown heading gets a blank line between them
+    text = "## Sophearyn Hang\n0:00\ncontent"
+    expected = "## Sophearyn Hang\n\n0:00\n\ncontent"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_timecodes()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_timecodes_embedded_in_text():
+    # A timestamp embedded within a sentence must not be treated as a timecode line
+    text = "See the video at 0:00 for the intro"
+    expected = "See the video at 0:00 for the intro"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_timecodes()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_timecodes_collapses_extra_blank_lines():
+    # Repeated blank lines should be collapsed into a single blank line
+    text = "0:00\n\n\n\ncontent"
+    expected = "0:00\n\ncontent"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_timecodes()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_timecodes_adjacent_timestamps():
+    # Two timestamps with no content between them get a single blank line
+    text = "0:00\n0:30"
+    expected = "0:00\n\n0:30"
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_timecodes()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"
+
+def test_space_out_timecodes_khmer_transcript():
+    # Realistic excerpt mirroring the Khmer transcript file structure
+    text = ("# Title\n"
+            "\n"
+            "## Sophearyn Hang\n"
+            "0:00\n"
+            "សូមជម្រាបសួរប្រិយមិត្ត\n"
+            "0:29\n"
+            "ថ្ងៃនេះរៀងគួរឲ្យចាប់អារម្មណ៍\n"
+            "0:59\n"
+            "ទស្សនាទាំងអស់គ្នា")
+    expected = ("# Title\n"
+                "\n"
+                "## Sophearyn Hang\n"
+                "\n"
+                "0:00\n"
+                "\n"
+                "សូមជម្រាបសួរប្រិយមិត្ត\n"
+                "\n"
+                "0:29\n"
+                "\n"
+                "ថ្ងៃនេះរៀងគួរឲ្យចាប់អារម្មណ៍\n"
+                "\n"
+                "0:59\n"
+                "\n"
+                "ទស្សនាទាំងអស់គ្នា")
+    mdw = formatters.MDWrangler.__new__(formatters.MDWrangler)
+    mdw.text = text
+    mdw.space_out_timecodes()
+    result = mdw.text
+    assert result == expected, f"Expected '{expected}', but got '{result}'"

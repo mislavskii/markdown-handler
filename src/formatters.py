@@ -56,6 +56,55 @@ class MDWrangler:
                 break
             self.text = new_text
 
+    def space_out_timecodes(self):
+        """
+        Space out timestamped transcript entries in the text.
+
+        Finds standalone timestamp lines (e.g., "0:00" or "12:34:56") that are
+        adjacent to other text and inserts blank lines around them, so each
+        timecode and its content form their own paragraph:
+
+            "0:00\ncontent\n0:29\ncontent"
+                -> "0:00\n\ncontent\n\n0:29\n\ncontent"
+
+        Already spaced timestamps are left unchanged, and repeated blank lines
+        are collapsed into a single blank line. Timestamps embedded within a
+        sentence (e.g., "at 0:00 for details") are not treated as timecode
+        lines. No leading blank line is introduced at the start of the document
+        and no trailing blank line is left at the end.
+
+        Modifies self.text in-place.
+        """
+        import re
+        # Pattern for a standalone timestamp line: mm:ss or hh:mm:ss
+        timestamp_pattern = re.compile(r'^\s*\d{1,2}:\d{2}(?::\d{2})?\s*$')
+
+        lines = self.text.split('\n')
+        result = []
+        prev_blank = True  # treat document start as blank to avoid a leading empty line
+        for line in lines:
+            is_timestamp = bool(timestamp_pattern.match(line))
+            is_blank = not line.strip()
+            if is_timestamp:
+                if not prev_blank:
+                    result.append('')
+                result.append(line)
+                result.append('')
+                prev_blank = True
+            elif is_blank:
+                if not prev_blank:
+                    result.append('')
+                prev_blank = True
+            else:
+                result.append(line)
+                prev_blank = False
+
+        # Remove any trailing blank lines introduced
+        while result and result[-1] == '':
+            result.pop()
+
+        self.text = '\n'.join(result)
+
 
 # Example usage
 if __name__ == "__main__":
